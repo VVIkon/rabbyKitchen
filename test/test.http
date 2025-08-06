@@ -1,0 +1,10 @@
+
+
+GET http://localhost:3004/persons
+content-type: application/json
+###
+
+GET http://localhost:3004/persons/2
+content-type: application/json
+###
+

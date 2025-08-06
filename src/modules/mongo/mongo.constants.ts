@@ -1,0 +1,1 @@
+export const MONGODB_OPTIONS = 'MONGODB_OPTIONS';
