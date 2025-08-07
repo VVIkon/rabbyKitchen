@@ -1,40 +1,35 @@
-import { Module, Global } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PersonData, PersonDataSchema } from '../person/dto/person-data.schema';
 import { MongoService } from './mongo.service';
-import { MONGODB_OPTIONS } from './mongo.constants';
-import { DynamicModel, DynamicModelSchema } from './schemas/dynamic.schema';
 
-
-@Global()
 @Module({
-  imports: [
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }),
-      inject: [ConfigService],
-    }),
-    MongooseModule.forFeature([
-      { name: DynamicModel.name, schema: DynamicModelSchema },
-    ]),
-    ConfigModule.forRoot({
-      envFilePath: '.env',
-    }),
-  ],
-  providers: [
-        {
-      provide: MONGODB_OPTIONS,
-      useFactory: (configService: ConfigService) => ({
-        database: configService.get<string>('MONGODB_DATABASE'),
-      }),
-      inject: [ConfigService],
-    },
-    MongoService,
-  ],
-  exports: [MongoService],
+	imports: [
+		MongooseModule.forRootAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => {
+				const uri = configService.get<string>('MONGODB_URI') || '';
+				const connection = mongoose.createConnection(uri);
+				connection.on('connected', () => {
+					console.log(`Connection to MongoDB: ${connection.name}`);
+				});
+				connection.on('error', (err) => {
+					console.error('Connection error to MongoDB', err);
+				});
+				return {
+					uri,
+					connectionFactory: () => connection,
+				};
+			},
+			inject: [ConfigService],
+		}),
+		MongooseModule.forFeature([
+			{ name: PersonData.name, schema: PersonDataSchema },
+		]),
+	],
+	providers: [MongoService],
+	exports: [MongoService],
 })
 export class MongoModule {}

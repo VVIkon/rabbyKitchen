@@ -1,63 +1,60 @@
-import { Controller, Get, Post, Delete, Param, Body, ParseUUIDPipe, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, UsePipes, ValidationPipe, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { MongoService } from '../mongo/mongo.service';
-import { PersonDTO, CreatePersonDTO, UpdatePersonDTO, PersonResponseDTO } from './dto/person.dto';
+import { PersonService } from './person.service';
+import { PersonData, Person } from "./dto/person-data.schema";
+
 
 @ApiTags('Persons')
 @Controller()
 @UsePipes(new ValidationPipe({ transform: true }))
 export class PersonController {
-	private readonly collectionName = 'Person';
-	private readonly personsCollection;
 
 	constructor(
-		private readonly mongoService: MongoService
-	) {
-		this.personsCollection = this.mongoService.forCollection<PersonDTO>('Person');
-	}
-
-	@Get('persons')
-	@ApiResponse({ status: 200, type: [PersonDTO] })
-	async getAllPersons(): Promise<PersonDTO[]> {
-		return await this.personsCollection.select_all();
-	}
+		private readonly personService: PersonService,
+	) {}
 
 	@Get('persons/:id')
 	@ApiParam({ name: 'id', type: String })
-	@ApiResponse({ status: 200, type: PersonResponseDTO })
-	async getPersonById(@Param('id', ParseUUIDPipe) id: string): Promise<PersonDTO | null> {
-		const persons = await this.personsCollection.select(id);
-		return persons.length > 0 ? persons[0] : null;
+	@ApiResponse({ status: 200, type: PersonData })
+	async getPersonById(@Param('id') id: string): Promise<PersonData | null> {
+		const person = await this.personService.getPersonById(id);
+		return person;
 	}
+
+	@Get('persons')
+	@ApiResponse({ status: 200, type: [PersonData] })
+	async getAllPersons(): Promise<PersonData[]> {
+		const retVal = await this.personService.getAllPersons();
+		return retVal;
+	}
+
 
 	@Get('persons/name/:name')
 	@ApiParam({ name: 'name', type: String })
-	@ApiResponse({ status: 200, type: [PersonResponseDTO] })
-	async getPersonsByName(@Param('name') name: string): Promise<PersonDTO[]> {
-		return this.personsCollection.find(this.collectionName, 'lastName', name);
+	@ApiResponse({ status: 200, type: [PersonData] })
+	async getPersonsByName(@Param('name') name: string): Promise<PersonData[]| null> {
+		const persons = await this.personService.getPersonsByName(name);
+		return persons
 	}
 
 	@Post('person')
-	@ApiResponse({ status: 201, type: PersonResponseDTO })
-	async createPerson(@Body() personData: CreatePersonDTO): Promise<PersonDTO> {
-		return this.personsCollection.create(personData);
+	@ApiResponse({ status: 201, type: PersonData })
+	async createPerson(@Body() personData: PersonData): Promise<PersonData | null> {
+		return await this.personService.createPerson(personData);
 	}
 
 	@Post('person/:id')
 	@ApiParam({ name: 'id', type: String })
-	@ApiResponse({ status: 200, type: PersonResponseDTO })
-	async updatePerson(
-		@Param('id', ParseUUIDPipe) id: string,
-		@Body() updateData: UpdatePersonDTO,
-	): Promise<PersonDTO | null> {
-		return this.personsCollection.update(id, updateData);
+	@ApiResponse({ status: 200, type: PersonData })
+	async updatePerson(	@Param('id') id: string,	@Body() updateData: PersonData): Promise<PersonData | null> {
+		return await this.personService.updatePerson(id, updateData);
 	}
 
 	@Delete('person/:id')
 	@ApiParam({ name: 'id', type: String })
 	@ApiResponse({ status: 200, type: Boolean })
-	async deletePerson(@Param('id', ParseUUIDPipe) id: string): Promise<{ success: boolean }> {
-		const result = await this.personsCollection.delete(id);
+	async deletePerson(@Param('id') id: string): Promise<{ success: boolean }> {
+		const result = await this.personService.deletePerson(id);
 		return { success: result };
 	}
 }

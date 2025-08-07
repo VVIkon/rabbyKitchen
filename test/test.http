@@ -4,7 +4,13 @@ GET http://localhost:3004/persons
 content-type: application/json
 ###
 
-GET http://localhost:3004/persons/2
+GET http://localhost:3004/persons/6891edd1e1fa5bb24ae08082
 content-type: application/json
 ###
+GET http://localhost:3004/persons/name/Нина Павловна Хуторская 4141 632195
+content-type: application/json
+###
+
+
+
 

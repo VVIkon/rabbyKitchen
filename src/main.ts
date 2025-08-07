@@ -15,7 +15,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	);
 
 	  // Валидация
-  	// app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  	app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
 	const configService = app.get(ConfigService);
 	const reflector = app.get(Reflector); //  прикрепляет пользовательские метаданные к обработчикам маршрутов через декораторы
