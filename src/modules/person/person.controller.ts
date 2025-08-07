@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Delete, Param, Body, UsePipes, ValidationPipe, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PersonService } from './person.service';
-import { PersonData, Person } from "./dto/person-data.schema";
+import { PersonData } from "./dto/person-data.schema";
 
 
 @ApiTags('Persons')
@@ -29,13 +29,13 @@ export class PersonController {
 	}
 
 
-	@Get('persons/name/:name')
-	@ApiParam({ name: 'name', type: String })
-	@ApiResponse({ status: 200, type: [PersonData] })
-	async getPersonsByName(@Param('name') name: string): Promise<PersonData[]| null> {
-		const persons = await this.personService.getPersonsByName(name);
-		return persons
-	}
+	// @Get('persons/name/:name')
+	// @ApiParam({ name: 'name', type: String })
+	// @ApiResponse({ status: 200, type: [PersonData] })
+	// async getPersonsByName(@Param('name') name: string): Promise<PersonData[]| null> {
+	// 	const persons = await this.personService.getPersonsByName(name);
+	// 	return persons
+	// }
 
 	@Post('person')
 	@ApiResponse({ status: 201, type: PersonData })

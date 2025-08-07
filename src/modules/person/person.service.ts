@@ -18,10 +18,10 @@ export class PersonService {
 		const retVal = await this.mongoService.findById(id);
 		return retVal;
 	}
-	async getPersonsByName(name: string): Promise<PersonData[] | null> {
-		const retVal = await this.mongoService.findByField('name', name);
-		return retVal;
-	}
+	// async getPersonsByName(name: string): Promise<PersonData[] | null> {
+	// 	const retVal = await this.mongoService.findByField('name', name);
+	// 	return retVal;
+	// }
 	async createPerson(personData: PersonData): Promise<PersonData | null> {
 		const retVal = await this.mongoService.create(personData);
 		return retVal;
